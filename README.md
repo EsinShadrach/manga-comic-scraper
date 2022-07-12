@@ -1,1 +1,0 @@
-# manga-comic-scraper
