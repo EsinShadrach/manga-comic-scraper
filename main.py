@@ -1,5 +1,4 @@
 import requests as re
-import pyttsx3 as tts
 # https://scans-hot.leanbox.us/manga/Boku-No-Hero-Academia/0359-001.png use this one for mangas at times
 # https://scans-hot.leanbox.us/manga/Onepunch-Man/0166-001.png
 # https://temp.compsci88.com/manga/Boku-No-Hero-Academia/0360-001.png
