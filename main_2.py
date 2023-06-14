@@ -1,7 +1,6 @@
-# TODO: Write a code that does everything in thoughts.md file
+# TODO: HANDLE BLOCKED ERROR WHEN GETTING IMAGES
 
 import json
-import attr
 import requests
 from bs4 import BeautifulSoup
 
@@ -88,16 +87,58 @@ def get_chapters(manga_url: str):
     for i, index in enumerate(iterable=chapters_list, start=1):
         print(f"{i}. {index['chapter_name']}\n")
 
+    selected = input("Select A Chapter >> ")
+    limit = len(chapters_list)
     print(
-        f"HINT: Enter the number of the chapter you want to read (1 for most recent and {len(chapters_list)} for last)")
+        f"HINT: Enter the number of the chapter you want to read (1 for most recent and {len(chapters_list)} for last)"
+    )
 
-# ! CREATE FUNCTION TO DOWNLOAD HERE
+    if selected.isdigit() and int(selected) <= limit:
+        print('\n')
+        downloadManga(
+            manga_name=chapters_list[int(selected) - 1]['chapter_name'],
+            url=chapters_list[int(selected) - 1]['link'],
+            chapter_num=chapters_list[int(selected) - 1]['id']
+        )
 
-def downloadManga():
-    url = 'https://chapmanganato.com/manga-xf951588/chapter-571'
-    pass
+    elif selected.isdigit() and int(selected) > limit:
+        print('Pick a number In the range!!')
+    else:
+        print('Pick a number!!')
+
+
+def downloadManga(manga_name, url, chapter_num):
+    response = requests.get(url=url).text
+    soup = BeautifulSoup(markup=response, features='html.parser')
+
+    image_parent = soup.find(
+        name='div',
+        attrs={
+            'class': 'container-chapter-reader'
+        }
+    )
+
+    image_list = []
+
+    for index, image in enumerate(iterable=image_parent.find_all(name='img'), start=1):
+        data = {
+            'page_name': index,
+            'link': image.get('src')
+        }
+        image_list.append(data)
+
+    for image in image_list:
+        page_name = image['page_name']
+        link = image['link']
+
+        with open(file=f"{manga_name}-{chapter_num}-{page_name}.jpg", mode='wb') as file:
+            image_response = requests.get(url=link)
+            file.write(image_response.content)
+
+            print(
+                f"Downloading {manga_name}-{chapter_num}-{page_name}.png..."
+            )
 
 
 if __name__ == "__main__":
-    # main()
-    downloadManga()
+    main()

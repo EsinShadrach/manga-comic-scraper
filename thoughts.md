@@ -24,6 +24,6 @@
 
 - [x] Flow 2
 
-- [ ] Flow 3
+- [x] Flow 3
 
 - [ ] Flow 4

@@ -2,4 +2,7 @@
 *.txt
 data.json
 *.html
+*.png
+*.jpg
+
 .vscode/*
