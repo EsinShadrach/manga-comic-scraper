@@ -20,9 +20,9 @@
 ## Flow 4 (optional)
 -  Create a shell script to access py code from anywhere in my system and save it to a folder preferably in the home folder
 
-- [ ] Flow 1
+- [x] Flow 1
 
-- [ ] Flow 2
+- [x] Flow 2
 
 - [ ] Flow 3
 
