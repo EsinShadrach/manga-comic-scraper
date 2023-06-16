@@ -6,3 +6,4 @@ data.json
 *.jpg
 
 .vscode/*
+*.code-workspace
