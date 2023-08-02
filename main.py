@@ -1,58 +1,65 @@
-# TODO: HANDLE BLOCKED ERROR WHEN GETTING IMAGES
-
+import os
 import json
 import requests
+import argparse
 from bs4 import BeautifulSoup
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-l", "--url", help="Direct link to manga")
+args = parser.parse_args()
 
 
 def main():
-    manga_name: str = input("Enter Manga Name here: ")
-    search_url = f"https://mangakakalot.com/search/story/{manga_name.replace(' ', '_')}"
+    if args.url:
+        get_chapters(manga_url=args.url)
+    else:
+        manga_name: str = input("Enter Manga Name here: ")
+        search_url = f"https://mangakakalot.com/search/story/{manga_name.replace(' ', '_')}"
 
-    search_response: str = requests.get(url=search_url).text
+        search_response: str = requests.get(url=search_url).text
 
-    soup = BeautifulSoup(markup=search_response, features='html.parser')
-    manga_soup = soup.find_all(name='div', attrs={'class': 'story_item'})
-    if manga_soup != []:
-        manga_data = []
+        soup = BeautifulSoup(markup=search_response, features='html.parser')
+        manga_soup = soup.find_all(name='div', attrs={'class': 'story_item'})
+        if manga_soup != []:
+            manga_data = []
 
-        for manga in manga_soup:
-            manga: BeautifulSoup = manga
-            searchData = manga.find(name='h3', attrs={'class': 'story_name'})
-            other_data = manga.findAll(name='span')
+            for manga in manga_soup:
+                manga: BeautifulSoup = manga
+                searchData = manga.find(name='h3', attrs={'class': 'story_name'})
+                other_data = manga.findAll(name='span')
 
-            manga_data.append({
-                'name': searchData.getText().strip(),
-                'preview_image': manga.find(name='img').get('src'),
-                'manga_link': searchData.find(name='a').get('href'),
-                'authors': other_data[0].getText().strip(),
-                'updated': other_data[1].getText().strip(),
-                'view': other_data[2].getText().strip(),
-            })
+                manga_data.append({
+                    'name': searchData.getText().strip(),
+                    'preview_image': manga.find(name='img').get('src'),
+                    'manga_link': searchData.find(name='a').get('href'),
+                    'authors': other_data[0].getText().strip(),
+                    'updated': other_data[1].getText().strip(),
+                    'view': other_data[2].getText().strip(),
+                })
 
-        with open(file='data.json', mode='w') as f:
-            f.write(json.dumps(obj=manga_data, indent=4))
+            with open(file='data.json', mode='w') as f:
+                f.write(json.dumps(obj=manga_data, indent=4))
 
-        print("Found Manga's: \n")
+            print("Found Manga's: \n")
 
-        for index, i in enumerate(iterable=manga_data, start=1):
-            print(f"{index}. {i['name']}\n")
+            for index, i in enumerate(iterable=manga_data, start=1):
+                print(f"{index}. {i['name']}\n")
 
-        selected = input("Select A Manga >> ")
-        limit = len(manga_data)
+            selected = input("Select A Manga >> ")
+            limit = len(manga_data)
 
-        if selected.isdigit() and int(selected) <= limit:
-            print('\n')
-            get_chapters(manga_url=manga_data[int(selected) - 1]['manga_link'])
+            if selected.isdigit() and int(selected) <= limit:
+                print('\n')
+                get_chapters(manga_url=manga_data[int(selected) - 1]['manga_link'])
 
-        elif selected.isdigit() and int(selected) > limit:
-            print('Pick a number In the range!!')
+            elif selected.isdigit() and int(selected) > limit:
+                print('Pick a number In the range!!')
+
+            else:
+                print('Pick a number!!')
 
         else:
-            print('Pick a number!!')
-
-    else:
-        print("Manga not found")
+            print("Manga not found")
 
 
 def get_chapters(manga_url: str):
@@ -108,7 +115,7 @@ def get_chapters(manga_url: str):
 
 
 def downloadManga(manga_name, url, chapter_num):
-    response = requests.get(url=url).text
+    response = requests.get(url=url, headers={'Referer': 'https://chapmanganato.com/'}).text
     soup = BeautifulSoup(markup=response, features='html.parser')
 
     image_parent = soup.find(
@@ -130,15 +137,18 @@ def downloadManga(manga_name, url, chapter_num):
     for image in image_list:
         page_name = image['page_name']
         link = image['link']
+        image_response = requests.get(url=link, headers={'Referer': 'https://chapmanganato.com/'})
+        if image_response.status_code == 200:
+            with open(f"downloads/{manga_name}-{chapter_num}-{page_name}.jpg", mode='wb') as file:
+                file.write(image_response.content)
+                print(f"Downloaded {manga_name}-{chapter_num}-{page_name}.png...")
+        else:
+            print(f"Failed to download {manga_name}-{chapter_num}-{page_name}.png...")
+                    
 
-        with open(file=f"{manga_name}-{chapter_num}-{page_name}.jpg", mode='wb') as file:
-            image_response = requests.get(url=link)
-            file.write(image_response.content)
-
-            print(
-                f"Downloading {manga_name}-{chapter_num}-{page_name}.png..."
-            )
 
 
 if __name__ == "__main__":
+    if not os.path.exists('downloads'):
+        os.makedirs('downloads')
     main()
