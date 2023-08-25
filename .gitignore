@@ -8,3 +8,8 @@ data.json
 .vscode/*
 *.code-workspace
 downloads
+*.swp
+main_old.py
+mangascraper_advanced.py
+thoughts.md
+*.txt
