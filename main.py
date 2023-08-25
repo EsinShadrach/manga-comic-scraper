@@ -141,9 +141,9 @@ def downloadManga(manga_name, url, chapter_num):
         if image_response.status_code == 200:
             with open(f"downloads/{manga_name}-{chapter_num}-{page_name}.jpg", mode='wb') as file:
                 file.write(image_response.content)
-                print(f"Downloaded {manga_name}-{chapter_num}-{page_name}.png...")
+                print(f"Downloaded {manga_name}-{chapter_num}-{page_name}.jpg...")
         else:
-            print(f"Failed to download {manga_name}-{chapter_num}-{page_name}.png...")
+            print(f"Failed to download {manga_name}-{chapter_num}-{page_name}.jpg...")
                     
 
 
