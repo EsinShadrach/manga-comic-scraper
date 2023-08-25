@@ -4,6 +4,7 @@ data.json
 *.html
 *.png
 *.jpg
+*.jpeg
 
 .vscode/*
 *.code-workspace
