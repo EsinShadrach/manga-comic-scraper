@@ -14,7 +14,8 @@ def main():
         get_chapters(manga_url=args.url)
     else:
         manga_name: str = input("Enter Manga Name here: ")
-        search_url = f"https://mangakakalot.com/search/story/{manga_name.replace(' ', '_')}"
+        base_url = "https://mangakakalot.com/search/story"
+        search_url = f"{base_url}/{manga_name.replace(' ', '_')}"
 
         search_response: str = requests.get(url=search_url).text
 
@@ -25,7 +26,8 @@ def main():
 
             for manga in manga_soup:
                 manga: BeautifulSoup = manga
-                searchData = manga.find(name='h3', attrs={'class': 'story_name'})
+                searchData = manga.find(
+                    name='h3', attrs={'class': 'story_name'})
                 other_data = manga.findAll(name='span')
 
                 manga_data.append({
@@ -50,7 +52,8 @@ def main():
 
             if selected.isdigit() and int(selected) <= limit:
                 print('\n')
-                get_chapters(manga_url=manga_data[int(selected) - 1]['manga_link'])
+                get_chapters(
+                    manga_url=manga_data[int(selected) - 1]['manga_link'])
 
             elif selected.isdigit() and int(selected) > limit:
                 print('Pick a number In the range!!')
@@ -83,8 +86,10 @@ def get_chapters(manga_url: str):
             'id': len(chapters) - index + 1,
             'chapter_name': chapter_name,
             'link': i.find(name='a').get('href'),
-            'views': i.find(name='span', attrs={'class': 'chapter-view'}).getText().strip(),
-            'released': i.find(name='span', attrs={'class': 'chapter-time'}).getText().strip()
+            'views': i.find(name='span', attrs={'class': 'chapter-view'})
+            .getText().strip(),
+            'released': i.find(name='span', attrs={'class': 'chapter-time'})
+            .getText().strip()
         }
         chapters_list.append(data)
 
@@ -96,8 +101,9 @@ def get_chapters(manga_url: str):
 
     selected = input("Select A Chapter >> ")
     limit = len(chapters_list)
+    hint_text = f"(1 for most recent and {len(chapters_list)} for last)"
     print(
-        f"HINT: Enter the number of the chapter you want to read (1 for most recent and {len(chapters_list)} for last)"
+        f"HINT: Enter the number of the chapter you want to read {hint_text}"
     )
 
     if selected.isdigit() and int(selected) <= limit:
@@ -115,7 +121,8 @@ def get_chapters(manga_url: str):
 
 
 def downloadManga(manga_name, url, chapter_num):
-    response = requests.get(url=url, headers={'Referer': 'https://chapmanganato.com/'}).text
+    response = requests.get(
+        url=url, headers={'Referer': 'https://chapmanganato.com/'}).text
     soup = BeautifulSoup(markup=response, features='html.parser')
 
     image_parent = soup.find(
@@ -127,7 +134,12 @@ def downloadManga(manga_name, url, chapter_num):
 
     image_list = []
 
-    for index, image in enumerate(iterable=image_parent.find_all(name='img'), start=1):
+    image_and_index = enumerate(
+        iterable=image_parent.find_all(name='img'),
+        start=1
+    )
+
+    for index, image in image_and_index:
         data = {
             'page_name': index,
             'link': image.get('src')
@@ -137,19 +149,24 @@ def downloadManga(manga_name, url, chapter_num):
     for image in image_list:
         page_name = image['page_name']
         link = image['link']
-        image_response = requests.get(url=link, headers={'Referer': 'https://chapmanganato.com/'})
+        image_response = requests.get(
+            url=link, headers={'Referer': 'https://chapmanganato.com/'})
         if image_response.status_code == 200:
-            with open(f"downloads/{manga_name}-{chapter_num}-{page_name}.jpg", mode='wb') as file:
-                file.write(image_response.content)
-                print(f"Downloaded {manga_name}-{chapter_num}-{page_name}.jpg...")
-        else:
-            print(f"Failed to download {manga_name}-{chapter_num}-{page_name}.jpg...")
-                    
+            write_text = f"downloads/{manga_name}-{chapter_num}-{page_name}"
 
+            with open(f"{write_text}.jpg", mode='wb') as file:
+                file.write(image_response.content)
+                print(
+                    f"Downloaded {manga_name}-{chapter_num}-{page_name}.jpg..."
+                )
+        else:
+            failed_name = f"{manga_name} - {chapter_num} - {page_name}.jpg..."
+            print(
+                f"Failed to download {failed_name}"
+            )
 
 
 if __name__ == "__main__":
     if not os.path.exists('downloads'):
         os.makedirs('downloads')
     main()
-
