@@ -122,8 +122,15 @@ def get_chapters(manga_url: str):
 
 def downloadManga(manga_name, url, chapter_num):
     response = requests.get(
-        url=url, headers={'Referer': 'https://chapmanganato.com/'}).text
-    soup = BeautifulSoup(markup=response, features='html.parser')
+        url=url,
+        headers={
+            'Referer': 'https://chapmanganato.com/'
+        }
+    ).text
+    soup = BeautifulSoup(
+        markup=response,
+        features='html.parser'
+    )
 
     image_parent = soup.find(
         name='div',
@@ -150,7 +157,11 @@ def downloadManga(manga_name, url, chapter_num):
         page_name = image['page_name']
         link = image['link']
         image_response = requests.get(
-            url=link, headers={'Referer': 'https://chapmanganato.com/'})
+            url=link,
+            headers={
+                'Referer': 'https://chapmanganato.com/'
+            }
+        )
         if image_response.status_code == 200:
             write_text = f"downloads/{manga_name}-{chapter_num}-{page_name}"
 
